@@ -1,0 +1,39 @@
+@page "/login"
+
+<div class="login-container">
+    <h2>Login</h2>
+    <div class="input-group">
+        <label for="username">Username</label>
+        <input @bind="Username" placeholder="Enter your username" />
+    </div>
+    <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" @bind="Password" placeholder="Enter your password" />
+    </div>
+    <button @onclick="HandleLogin">Log In</button>
+
+    @if (ErrorMessage != null)
+    {
+        <p class="error-message">@ErrorMessage</p>
+    }
+</div>
+
+@code {
+
+    private string Username { get; set; } = "";
+    private string Password { get; set; } = "";
+    private string ErrorMessage { get; set; }
+
+    private void HandleLogin()
+    {
+        if (Username == "awashek" && Password == "password")
+        {
+            ErrorMessage = null;
+            Console.WriteLine("Login Successful");
+        }
+        else
+        {
+            ErrorMessage = "Invalid username or password";
+        }
+    }
+}
