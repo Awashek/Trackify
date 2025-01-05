@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using PersonalExpenseTracking.Services;
+using PersonalExpenseTracking.Services.Interface;
+
 
 namespace PersonalExpenseTracking;
 
@@ -9,9 +12,15 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
 
         builder.Services.AddMauiBlazorWebView();
+
+        //Register services 
+        builder.Services.AddScoped<IUserService, UserService>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

@@ -69,4 +69,9 @@
       <Folder Include="Seeding\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Services\Interface\IUser.cs" />
+      <Compile Remove="Components\Pages\Register.cs" />
+    </ItemGroup>
+
 </Project>

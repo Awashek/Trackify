@@ -1,39 +1,36 @@
 @page "/login"
+@using PersonalExpenseTracking.Services.Interface
+@inject NavigationManager Nav
+@inject IUserService UserService
 
-<div class="login-container">
-    <h2>Login</h2>
-    <div class="input-group">
-        <label for="username">Username</label>
-        <input @bind="Username" placeholder="Enter your username" />
-    </div>
-    <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" @bind="Password" placeholder="Enter your password" />
-    </div>
-    <button @onclick="HandleLogin">Log In</button>
+<style>
 
-    @if (ErrorMessage != null)
-    {
-        <p class="error-message">@ErrorMessage</p>
-    }
+</style>
+<div class="form-login">
+    <form class="text-center" @onsubmit="HandleLogin">
+        <img class="mb-4" src="/appicon.png" alt="" height="72">
+        <h1 class="h3 mb-3 fw-normal">Please Login</h1>
+
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" @bind="Users.Username" placeholder="Username" />
+            <label for="floatingInput">Username</label>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-floating mb-3">
+            <input type="Password" class="form-control" @bind="Users.Password" placeholder="Password" />
+            <label for="floatingPassword">Password</label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+        <div class="alert alert-danger">@ErrorMessage</div>
+        }
+        <button class="btn btn-lg btn-primary">
+            Login
+        </button>
+        <button class="btn btn-lg btn-secondary" @onclick="HandleRegister">
+            Register
+        </button>
+    </form>
 </div>
-
-@code {
-
-    private string Username { get; set; } = "";
-    private string Password { get; set; } = "";
-    private string ErrorMessage { get; set; }
-
-    private void HandleLogin()
-    {
-        if (Username == "awashek" && Password == "password")
-        {
-            ErrorMessage = null;
-            Console.WriteLine("Login Successful");
-        }
-        else
-        {
-            ErrorMessage = "Invalid username or password";
-        }
-    }
-}
