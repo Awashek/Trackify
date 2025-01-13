@@ -14,8 +14,10 @@ public class TransactionService : BaseService<Transaction>, ITransactionService
         _transactions = GetAll(AppTransactionFilePath);
         
     }
-    
-    public async Task<List<Transaction>> GetAll(string accountId)
 
+    public async Task<List<Transaction>> GetAllTransaction()
+    {
+        return _transactions;
+    }
     
 }
