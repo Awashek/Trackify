@@ -21,6 +21,7 @@ public static class MauiProgram
 
         //Register services 
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IDataService, DataService>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

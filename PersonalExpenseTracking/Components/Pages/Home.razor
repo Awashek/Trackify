@@ -1,18 +1,40 @@
 @page "/home"
 @using PersonalExpenseTracking.Services.Interface
 @inject NavigationManager Nav
-@inject IUserService UserService
+@using PersonalExpenseTracking.Models
 
-Welcome to your  Maui Blazor App.
-
-<button class="btn btn-lg btn-secondary" @onclick="ShowLogoutConfirmation" style="position: fixed; top: 20px; right: 20px;">
+<button class="btn btn-lg btn-secondary" @onclick="ShowLogoutConfirmation" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
     Logout
 </button>
 
-<h2>Users List</h2>
+
+<div class="metrics">
+    <DashboardMetrics
+        TotalIncome="@TotalIncome"
+        TotalExpense="@TotalExpense"
+        TotalDebts="@TotalDebts"
+        RemainingDebts="@RemainingDebts"
+        ClearedDebts="@ClearedDebts" />
+</div>
+
+<div class="charts-container">
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3>Revenue</h3>
+        </div>
+        <RevenueChart Data="@RevenueData" />
+    </div>
+
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3>Expense By Category</h3>
+        </div>
+        <ExpenseCategoryChart Data="@ExpenseCategoryData" />
+    </div>
+</div>
 
 <!-- Users List Table -->
-@if (users.Any())
+<!-- @if (users.Any())
 {
     <style>
         * {
@@ -214,95 +236,11 @@ Welcome to your  Maui Blazor App.
             }
         </tbody>
     </table>
-    <div class="sidebar">
-        <div class="logo">
-            <img src="/api/placeholder/120/40" alt="FinTrack" />
-        </div>
-        <ul class="main-menu">
-            <li class="active">Dashboard</li>
-            <li>Transactions</li>
-            <li>Debts</li>
-        </ul>
-    </div>
-    <div class="main-content">
-        <div class="header">
-            <div class="date-filter">
-                <span>Dec 2024</span>
-                <select>
-                    <option>All Categories</option>
-                </select>
-            </div>
-            <button>Export</button>
-        </div>
-
-        <div class="metrics">
-            <div class="metric-card income">
-                <div>Total Income</div>
-                <div class="metric-value">$6,500</div>
-            </div>
-            <div class="metric-card expense">
-                <div>Total Expense</div>
-                <div class="metric-value">$2,000</div>
-            </div>
-            <div class="metric-card debt">
-                <div>Total Debts</div>
-                <div class="metric-value">-$3,600</div>
-            </div>
-            <div class="metric-card remaining">
-                <div>Remaining Debts</div>
-                <div class="metric-value">-$600</div>
-            </div>
-            <div class="metric-card cleared">
-                <div>Cleared Debt</div>
-                <div class="metric-value">$2,252</div>
-            </div>
-        </div>
-
-        <div class="charts-container">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Revenue</h3>
-                </div>
-                <img src="/api/placeholder/600/300" alt="Revenue Chart" />
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Expense By Category</h3>
-                </div>
-                <img src="/api/placeholder/300/300" alt="Expense Chart" />
-            </div>
-        </div>
-
-        <div class="bottom-section">
-            <div class="transactions-list">
-                <h3>Highest Transactions</h3>
-                <div class="transaction-item">
-                    <div class="transaction-info">
-                        <div>Bar</div>
-                        <div class="transaction-category">Wallet</div>
-                    </div>
-                    <div class="transaction-amount">-$62.00</div>
-                    <div class="transaction-date">12/14/2024</div>
-                </div>
-                <div class="transaction-item">
-                    <div class="transaction-info">
-                        <div>Entertainment</div>
-                        <div class="transaction-category">Wallet</div>
-                    </div>
-                    <div class="transaction-amount">-$88.00</div>
-                    <div class="transaction-date">12/13/2024</div>
-                </div>
-            </div>
-
-            
-        </div>
-    </div>
-
 }
 else
 {
     <p>No users found.</p>
-}
+} -->
 @if (!string.IsNullOrEmpty(Message))
 {
     <div class="alert alert-info">

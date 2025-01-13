@@ -1,0 +1,66 @@
+
+<h3>DashboardMetrics</h3>
+
+@code {
+    [Parameter] public decimal TotalIncome { get; set; }
+    [Parameter] public decimal TotalExpense { get; set; }
+    [Parameter] public decimal TotalDebts { get; set; }
+    [Parameter] public decimal RemainingDebts { get; set; }
+    [Parameter] public decimal ClearedDebts { get; set; }
+}
+
+<div class="metrics">
+    <div class="metric-card income">
+        <div class="metric-title">Total Income</div>
+        <div class="metric-value">@TotalIncome</div>
+    </div>
+
+    <div class="metric-card expense">
+        <div class="metric-title">Total Expense</div>
+        <div class="metric-value">@TotalExpense</div>
+    </div>
+
+    <div class="metric-card debt">
+        <div class="metric-title">Total Debts</div>
+        <div class="metric-value">@TotalDebts</div>
+    </div>
+
+    <div class="metric-card remaining">
+        <div class="metric-title">Remaining Debts</div>
+        <div class="metric-value">@RemainingDebts</div>
+    </div>
+
+    <div class="metric-card cleared">
+        <div class="metric-title">Cleared Debt</div>
+        <div class="metric-value">@ClearedDebts</div>
+    </div>
+</div>
+
+<style>
+    .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .metric-title {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+    }
+
+</style>
