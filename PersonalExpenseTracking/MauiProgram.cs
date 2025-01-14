@@ -20,6 +20,7 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
         //Register services 
+        
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITransactionService, TransactionService>();
         builder.Services.AddScoped<IDebtService, DebtService>();

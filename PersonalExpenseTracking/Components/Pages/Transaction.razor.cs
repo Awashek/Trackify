@@ -1,9 +1,8 @@
+using PersonalExpenseTracking.Models;
+using PersonalExpenseTracking.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace PersonalExpenseTracking.Components.Pages;
-
-public partial class Transaction : ComponentBase
+namespace PersonalExpenseTracking.Components.Pages
 {
-    public object Amount { get; set; }
-    public object Category { get; set; }
+    
 }

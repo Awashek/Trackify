@@ -4,18 +4,18 @@ namespace PersonalExpenseTracking.Services.Interface;
 
 public interface ITransactionService
 {
-    // Fetches all transactions from the data source.
+    // Retrieves all transactions
     Task<List<Transaction>> GetAllTransactions();
 
-    // Adds a new transaction to the data source.
+    // Adds a new transaction
     Task AddTransaction(Transaction transaction);
 
-    // Updates an existing transaction in the data source.
+    // Updates an existing transaction
     Task UpdateTransaction(Transaction transaction);
 
-    // Deletes a transaction from the data source using its ID.
-    Task DeleteTransaction(Guid transactionId);
+    // Deletes a transaction by its ID
+    Task DeleteTransaction(int transactionId);
 
-    // Retrieves a specific transaction by its ID.
-    Task<Transaction> GetTransactionById(Guid transactionId);
+    // Retrieves a specific transaction by ID
+    Task<Transaction> GetTransactionById(int transactionId);
 }
