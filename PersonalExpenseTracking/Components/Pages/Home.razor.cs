@@ -10,12 +10,13 @@ namespace PersonalExpenseTracking.Components.Pages
         private List<User> users = new();
         private string Message = string.Empty;
         private bool IslogOut { get; set; } = false;
-
         private decimal TotalIncome { get; set; }
         private decimal TotalExpense { get; set; }
         private decimal TotalDebts { get; set; }
         private decimal RemainingDebts { get; set; }
         private decimal ClearedDebts { get; set; }
+
+        
         private List<Transaction> RevenueData { get; set; } = new();
         private List<Transaction> ExpenseCategoryData { get; set; } = new();
 
@@ -24,7 +25,7 @@ namespace PersonalExpenseTracking.Components.Pages
             try
             {
                 // Fetch transactions
-                var transactions = await TransactionService.GetTransactionsAsync();
+                var transactions = await TransactionService.GetAllTransactions();
 
                 // Calculate metrics
                 TotalIncome = transactions.Where(t => t.Type == TransactionType.Credit).Sum(t => t.Amount);
@@ -34,15 +35,8 @@ namespace PersonalExpenseTracking.Components.Pages
                 RemainingDebts = TotalDebts - ClearedDebts;
 
                 // Populate chart data
-                RevenueData = transactions.Where(t => t.Type == TransactionType.Credit).ToList();
-                ExpenseCategoryData = transactions
-                    .Where(t => t.Type == TransactionType.Debit)
-                    .GroupBy(t => t.Category)
-                    .Select(g => new Transaction { Category = g.Key, Amount = g.Sum(t => t.Amount) })
-                    .ToList();
-
-                // Fetch users
-                GetAllUsers();
+                //remaining
+               
             }
             catch (Exception ex)
             {
@@ -55,17 +49,7 @@ namespace PersonalExpenseTracking.Components.Pages
             Nav.NavigateTo("/login");
         }
 
-        private void GetAllUsers()
-        {
-            try
-            {
-                users = UserService.GetAll();
-            }
-            catch (Exception)
-            {
-                Message = "Failed to fetch users.";
-            }
-        }
+      
 
         private void ShowLogoutConfirmation()
         {
