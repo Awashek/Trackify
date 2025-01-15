@@ -71,12 +71,18 @@ public class DebtService : BaseService<Debt>, IDebtService
         var debt = _debts.FirstOrDefault(d => d.Id == debtId);
         if (debt != null)
         {
+            // Mark the debt as cleared
             debt.Status = "Cleared";
             debt.ClearedDate = DateOnly.FromDateTime(DateTime.Now);
 
+            // Remove the cleared debt from the list (this is crucial for permanent deletion)
+            _debts.Remove(debt);
+
+            // Save the updated list back to the file
             await SaveDebtsToFile();
         }
     }
+
 
     // Private method to load debts from the file
     private List<Debt> LoadDebtsFromFile(string filePath)

@@ -6,6 +6,7 @@ namespace PersonalExpenseTracking.Models
         public int Id { get; set; }
         public decimal Amount { get; set; }
         
+        public string Status { get; set; }
         public string Title { get; set; } 
         public  string Type { get; set; } // Income Expense Debt
         public DateTime Date { get; set; }        // Date of the transaction

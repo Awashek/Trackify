@@ -34,6 +34,17 @@
         padding: 10px 0;
         border-bottom: 1px solid #eee;
     }
+    .cleared-debt {
+        text-decoration: underline;
+        text-align: center;
+    }
+    .transaction-item span {
+        display: inline-block; /* Ensures proper alignment */
+        width: 100%; /* Make spans take full width */
+        text-align: center; /* Center text */
+    }
+
+
 </style>
 
 <div class="container mt-4">
@@ -49,16 +60,36 @@
         <div class="col-md-4">
             <div class="dashboard-card bg-danger text-white text-center">
                 <h5>Total Outflows</h5>
-                <h2>@totalExpense</h2> <!-- Updated to use dynamic totalExpense -->
+                <h2>@totalExpense</h2> 
             </div>
         </div>
         <div class="col-md-4">
             <div class="dashboard-card bg-warning text-white text-center">
                 <h5>Total Debt</h5>
-                <h2>@totalDebt</h2> <!-- Updated to use dynamic totalDebt -->
+                <h2>@totalDebt</h2> 
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card bg-warning text-white text-center">
+                <h5>Cleared Debt</h5>
+                <h2>@clearedDebt</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card bg-warning text-white text-center">
+                <h5>Remaining Debt</h5>
+                <h2>@remainingDebt</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card bg-warning text-white text-center">
+                <h5>Total Balance</h5>
+                <h2>@totalBalance</h2>
             </div>
         </div>
     </div>
+    
 
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
@@ -78,12 +109,22 @@
                 <h5>Top Transactions</h5>
                 @*TASK NO 3: Need From and to dates selector to filter data in transactions to show below*@
                 <div class="transaction-list">
+                    <div class="transaction-header d-flex justify-content-between font-weight-bold border-bottom pb-2 mb-2">
+                        <span>Title</span>
+                        <span>Date</span>
+                        <span>Amount</span>
+                        <span>Description</span>
+                        <span>Tag</span>
+                        <span>Type</span>
+                    </div>
                     @foreach (var transaction in transactions)
                     {
                         <div class="transaction-item">
-                            <span>@transaction.Description</span>
+                            <span>@transaction.Title</span>
                             <span>@transaction.Date.ToString("yyyy-MM-dd")</span>
                             <span>@transaction.Amount.ToString()</span>
+                            <span>@transaction.Description</span>
+                            <span>@transaction.Tags</span>
                             <span class="@(transaction.Type == "Income" ? "text-success" : "text-danger")">@transaction.Type</span>
                         </div>
                     }
@@ -93,44 +134,159 @@
     </div>
 </div>
 
-<!-- Date Range Filter -->
-<div class="mb-3">
-    <label for="fromDate" class="form-label">From Date</label>
-    <input type="date" class="form-control" id="fromDate" @bind="fromDate" />
 
-    <label for="toDate" class="form-label mt-2">To Date</label>
-    <input type="date" class="form-control" id="toDate" @bind="toDate" />
+<!-- Debt List -->
+
+<div class="container mt-4">
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <h5>Debt List</h5>
+                @*TASK NO 3: Need From and to dates selector to filter data in transactions to show below*@
+                <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-lg btn-secondary" @onclick="ShowAddDebtModal" >
+                    Add Debt
+                </button>
+               </div>
+                    
+                <div class="transaction-list">
+                    <!-- Header Row -->
+                    <div class="transaction-header d-flex justify-content-between font-weight-bold border-bottom pb-2 mb-2">
+                        <span>Title</span>
+                        <span>Amount</span>
+                        <span>Source</span>
+                        <span>Status</span>
+                        <span>DueDate</span>
+                        
+                    </div>
+                    <!-- Transaction Rows -->
+                    @foreach (var debt in debts)
+                    {
+                    <div class="transaction-item d-flex justify-content-between align-items-center @(debt.Status == "Cleared" ? "cleared-debt" : "")">
+                        <span>@debt.Title</span>
+                        <span>@debt.Amount.ToString()</span>
+                        <span>@debt.Source</span>
+                        <span class="@(debt.Status == "Cleared" ? "text-success" : "text-danger")">@debt.Status</span>
+                        <span>@debt.DueDate.ToString("yyyy-MM-dd")</span>
+                        <button class="btn btn-sm btn-primary me-2" @onclick="() => ClearDebt(debt.Id)">Clear Debt</button>
+                        <button class="btn btn-sm btn-secondary" @onclick="() => ShowUpdateDebtModal(debt.Id)">Update Debt</button>
+
+
+                    </div>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+@*Modal for adding Debts *@
+
+@if (showAddDebtModal)
+{
+<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Debt</h5>
+                <button type="button" class="btn-close" @onclick="CloseAddDebtModal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label>Title</label>
+                    <input type="text" class="form-control" @bind="newDebt.Title" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Amount</label>
+                    <input type="number" class="form-control" @bind="newDebt.Amount" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Source</label>
+                    <input type="text" class="form-control" @bind="newDebt.Source" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Status</label>
+                    <select class="form-control" @bind="newDebt.Status">
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label>Due Date</label>
+                    <input type="date" class="form-control" @bind="newDebt.DueDate" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseAddDebtModal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="AddDebt">Add Debt</button>
+            </div>
+        </div>
+    </div>
 </div>
+<div class="modal-backdrop fade show"></div>
+}
 
-<!-- Transactions List -->
-<table class="table">
-    <thead>
-    <tr>
-        Tags = newTransaction.Tags,
-        Title = newTransaction.Title
-        <th>Title</th>
-        <th>Date</th>
-        <th>Amount</th>
-        <th>Type</th>
-        <th>Description</th>
-        <td>Tags</td>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var transaction in FilteredTransactions)
-    {
-        <tr>
-            <td>@transaction.Title</td>
-            <td>@transaction.Date.ToShortDateString()</td>
-            <td>@transaction.Amount</td>
-            <td>@transaction.Type</td>
-            <td>@transaction.Description</td>
-            <td>@transaction.Tags</td>
-        </tr>
-    }
-    </tbody>
-</table>
 
+@if (showUpdateDebtModal)
+{
+<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Debt</h5>
+                <button type="button" class="btn-close" @onclick="() => showUpdateDebtModal = false"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label>Title</label>
+                    <input type="text" class="form-control" @bind="selectedDebt.Title" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Amount</label>
+                    <input type="number" class="form-control" @bind="selectedDebt.Amount" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Source</label>
+                    <input type="text" class="form-control" @bind="selectedDebt.Source" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Status</label>
+                    <select class="form-control" @bind="selectedDebt.Status">
+                        <option value="Pending">Pending</option>
+                        <option value="Cleared">Cleared</option>
+                        <option value="Overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label>Due Date</label>
+                    <input type="date" class="form-control" @bind="selectedDebt.DueDate" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="() => showUpdateDebtModal = false">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="UpdateDebt">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+}
 
 
 @* Modal for Adding Transaction *@
@@ -279,61 +435,99 @@
 
 
 @code {
+    
+    private decimal totalIncome;
+    private decimal totalExpense;
+    private decimal totalDebt;
+    private decimal clearedDebt;
+    private decimal remainingDebt;
+    private decimal totalBalance;
     private string errorMessage;
     private string successMessage;
-
+    private bool showAddDebtModal = false;
+    
+    //Transaction
+    private List<Models.Transaction> transactions = new List<Models.Transaction>();
+    private Models.Transaction newTransaction = new Models.Transaction();
+    
+    private bool showModal = false;
+    //Debt
+    private Models.Debt newDebt = new Models.Debt();
+    private List<Models.Debt> debts = new List<Models.Debt>();
+        private bool showUpdateDebtModal = false; 
+        private Models.Debt selectedDebt = new Models.Debt(); 
+        
     protected override void OnInitialized()
     {
         CalculateTotals();
     }
 
-    <!--public class Transaction
-    {
-        public string Description { get; set; }
-        public DateTime Date { get; set; }
-        public decimal Amount { get; set; }
-        public string Type { get; set; }
-    } -->
     
     
-    private Models.Transaction newTransaction = new Models.Transaction();
-    private bool showModal = false;
-    
-    private Models.Debt newDebt = new Models.Debt();
-    
-
-    private decimal totalIncome;
-    private decimal totalExpense;
-    private decimal totalDebt;
-
-    private List<Models.Transaction> transactions = new List<Models.Transaction>();
-    
-    private async Task LoadTransactions()
-    {
-        try
-        {
-            // Fetch all transactions from the service
-            transactions = await TransactionService.GetAllTransactions();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading transactions: {ex.Message}");
-            // You can handle the error as needed, e.g., by showing an error message
-        }
-    }
-    
-    
-    // Fields for date range filtering
-    private DateTime? fromDate;
-    private DateTime? toDate;
-
     private void OpenModal()
     {
         newTransaction = new Models.Transaction();
         newTransaction.Date = DateTime.Now;
         showModal = true;
     }
+    
+    
+    private async Task LoadDebts()
+    {
+        try
+        {
+            // Fetch all debts from the service
+            debts = await DebtService.GetAllDebts(); // Assuming you have a method to fetch all debts
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading debts: {ex.Message}");
+            // Handle the error as needed, e.g., by showing an error message to the user
+            errorMessage = "There was an error loading the debts. Please try again later.";
+        }
+    }
+    
+     
+    private async Task LoadTransactions()
+    {
+        try
+        {
+            // Assuming TransactionService.GetAllTransactions() fetches the data
+            transactions = await TransactionService.GetAllTransactions();
+            Console.WriteLine($"Loaded {transactions.Count} transactions.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading transactions: {ex.Message}");
+            errorMessage = "There was an error loading the transactions. Please try again later.";
+        }
+    }
 
+
+
+    
+    //Debt
+    // Show the Add Debt modal
+    private void ShowAddDebtModal()
+    {
+        showAddDebtModal = true;
+    }
+
+    // Close the Add Debt modal
+    private void CloseAddDebtModal()
+    {
+        showAddDebtModal = false;
+    }
+
+   
+    
+    
+    // Fields for date range filtering
+    private DateTime? fromDate;
+    private DateTime? toDate;
+
+    
+   
     private void CalculateTotals()
     {
         totalIncome = transactions
@@ -347,6 +541,9 @@
         totalDebt = transactions
             .Where(t => t.Type == "Debt")
             .Sum(t => t.Amount);
+        //clearedDebt = debts.Where(t => t.T == "Debt" && t.Status == "Cleared").Sum(t => t.Amount);
+        remainingDebt = totalDebt - clearedDebt;
+        totalBalance = totalIncome - totalExpense + remainingDebt;
     }
 
     private void CloseModal()
@@ -364,79 +561,181 @@
         errorMessage = null;
     }
 
-    private async void AddTransaction()
+    private void ShowUpdateDebtModal(int debtId)
+    {
+        // Find the debt by ID and set it as the selected debt
+        selectedDebt = debts.FirstOrDefault(d => d.Id == debtId);
+        if (selectedDebt != null)
+        {
+            showUpdateDebtModal = true;
+        }
+    }
+
+    private async Task AddDebt()
+    {
+        // Validate the input fields
+        if (string.IsNullOrEmpty(newDebt.Title) || newDebt.Amount <= 0)
+        {
+            errorMessage = "Please fill in all the fields correctly.";
+        }
+        else
+        {
+            // Process the debt transaction (e.g., save to database or list)
+            await DebtService.AddDebt(new Models.Debt()
+            {
+                Title = newDebt.Title,
+                Status = "Pending",
+                Amount = newDebt.Amount,
+                DueDate = newDebt.DueDate,
+                ClearedDate = null,  // Not cleared initially
+                Source = newDebt.Source
+            });
+
+            // Reset input fields or close modal after submission
+            showModal = false;
+            newDebt = new Models.Debt(); // Reset the debt form
+            
+        }
+    }
+    //Debt functionalities
+    private async Task ClearDebt(int debtId)
+    {
+        // Call the service to clear the debt (which will also delete it from the file)
+        await DebtService.ClearDebt(debtId);
+
+        // Find and update the debt in the local list
+        var debt = debts.FirstOrDefault(d => d.Id == debtId);
+        if (debt != null)
+        {
+            // Update totals
+            clearedDebt += debt.Amount; // Add cleared debt to the clearedDebt total
+            remainingDebt -= debt.Amount; // Subtract cleared debt from the remainingDebt
+
+            // Ensure remainingDebt does not go below zero
+            if (remainingDebt < 0)
+            {
+                remainingDebt = 0;
+            }
+
+            // Remove the cleared debt from the list
+            debts.Remove(debt);
+
+            // Recalculate the total balance
+            totalBalance = totalIncome + clearedDebt - totalExpense;
+        }
+
+        // Ensure the UI updates
+        StateHasChanged();
+    }
+
+
+    
+    private async Task UpdateDebt()
+    {
+        if (selectedDebt != null)
+        {
+            // Call the service method to update the debt
+            await DebtService.UpdateDebt(selectedDebt);
+
+            // Update the local debts list to reflect changes
+            var debt = debts.FirstOrDefault(d => d.Id == selectedDebt.Id);
+            if (debt != null)
+            {
+                debt.Source = selectedDebt.Source;
+                debt.Title = selectedDebt.Title;
+                debt.Amount = selectedDebt.Amount;
+                debt.DueDate = selectedDebt.DueDate;
+                debt.Status = selectedDebt.Status;
+                debt.ClearedDate = selectedDebt.ClearedDate;
+            }
+
+            // Close the modal after updating
+            showUpdateDebtModal = false;
+            StateHasChanged();
+        }
+    }
+
+    
+    
+   private async Task AddTransaction()
+{
+    try
+    {
+        // Validate the transaction fields
+        if (string.IsNullOrWhiteSpace(newTransaction.Description) || newTransaction.Description.Any(char.IsDigit))
+        {
+            throw new Exception("Description cannot be empty or contain numbers.");
+        }
+
+        if (newTransaction.Amount <= 0)
+        {
+            throw new Exception("Amount must be greater than zero.");
+        }
+
+        if (string.IsNullOrWhiteSpace(newTransaction.Type))
+        {
+            throw new Exception("Transaction type is required.");
+        }
+
+        // Call the service to add the transaction
+        await TransactionService.AddTransaction(new Models.Transaction
+        {
+            Description = newTransaction.Description,
+            Date = newTransaction.Date == default ? DateTime.Now : newTransaction.Date,
+            Amount = newTransaction.Amount,
+            Type = newTransaction.Type,
+            Tags = newTransaction.Tags,
+            Title = newTransaction.Title
+        });
+
+        // If the transaction type is "Debt", add it to the debts as well
+        if (newTransaction.Type == "Debt")
+        {
+            await DebtService.AddDebt(new Models.Debt
+            {
+                Title = newTransaction.Title,
+                Status = "Pending",
+                Amount = newTransaction.Amount,
+                DueDate = newDebt.DueDate,
+                ClearedDate = null,
+                Source = newDebt.Source
+            });
+        }
+
+        // Recalculate totals after adding the transaction
+        CalculateTotals();
+
+        // Show success message and reset form
+        successMessage = "Your transaction has been successfully added.";
+        errorMessage = null;
+        newTransaction = new Models.Transaction(); // Reset the form data
+        CloseModal(); // Close the modal
+    }
+    catch (Exception ex)
+    {
+        // Log the error and display the error message
+        Console.WriteLine($"Error adding transaction: {ex.Message}");
+        errorMessage = ex.Message;
+        successMessage = null;
+    }
+}
+
+   
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (newTransaction != null)
-            {
-                // Validate the transaction fields
-                if (string.IsNullOrWhiteSpace(newTransaction.Description) || newTransaction.Description.Any(char.IsDigit))
-                {
-                    throw new Exception("Description cannot be empty or contain numbers.");
-                }
-
-                if (newTransaction.Amount <= 0)
-                {
-                    throw new Exception("Amount must be greater than zero.");
-                }
-
-                if (string.IsNullOrWhiteSpace(newTransaction.Type))
-                {
-                    throw new Exception("Transaction type is required.");
-                }
-
-                // Call the service to add the transaction
-                await TransactionService.AddTransaction(new Models.Transaction
-                {
-                    Description = newTransaction.Description,
-                    Date = newTransaction.Date == default ? DateTime.Now : newTransaction.Date,
-                    Amount = newTransaction.Amount,
-                    Type = newTransaction.Type,
-                    Tags = newTransaction.Tags,
-                    Title = newTransaction.Title
-                });
-                if (newTransaction.Type == "Debt")
-                {
-                    await DebtService.AddDebt(new Models.Debt
-                    {
-                        Title = newTransaction.Title,
-                        Status = "Pending",
-                        Amount = newTransaction.Amount,
-                        DueDate = newDebt.DueDate,
-                        ClearedDate = null,
-                        Source = newDebt.Source
-                    });
-                }
-                
-
-                // Recalculate totals and reset the form
-                CalculateTotals();
-                successMessage = "Your transaction is complete.";
-                errorMessage = null;
-                newTransaction = new Models.Transaction(); // Reset the form data
-                CloseModal(); // Close the modal
-            }
-            else
-            {
-                throw new Exception("Transaction data is invalid.");
-            }
+            await LoadTransactions();
+            await LoadDebts();
+            CalculateTotals(); // Calculate totals after loading the data
         }
         catch (Exception ex)
         {
-            // Log the error and display the error message
-            Console.WriteLine($"Error adding transaction: {ex.Message}");
-            errorMessage = ex.Message;
-            successMessage = null;
+            Console.WriteLine($"Error during initialization: {ex.Message}");
+            errorMessage = "There was an issue loading the data. Please try again later.";
         }
     }
 
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTransactions();
-        CalculateTotals();
-    }
     
     // Filtered transactions based on date range
     private IEnumerable<Models.Transaction> FilteredTransactions =>

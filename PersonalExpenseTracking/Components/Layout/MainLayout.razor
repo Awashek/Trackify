@@ -1,6 +1,23 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
 <div class="page">
+    @if (Navigation.Uri.Contains("login"))
+    {
+    <!-- When on login page, hide the sidebar -->
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+    }
+    else
+    {
+    <!-- For other pages, show the sidebar -->
     <div class="sidebar">
         <NavMenu/>
     </div>
@@ -14,4 +31,5 @@
             @Body
         </article>
     </main>
+    }
 </div>

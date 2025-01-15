@@ -1,1 +1,13 @@
 @page "/"
+
+@code {
+    
+    // Navigate after the page has rendered
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
+}

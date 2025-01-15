@@ -29,6 +29,7 @@ public class TransactionService : BaseService<Transaction>, ITransactionService
         return await Task.FromResult(transaction);
     }
 
+    
     public async Task AddTransaction(Transaction transaction)
     {
         // Assign a unique ID to the new transaction and add it to the list
@@ -60,18 +61,22 @@ public class TransactionService : BaseService<Transaction>, ITransactionService
 
     public async Task DeleteTransaction(int transactionId)
     {
-        // Find and remove the transaction by ID
         var transaction = _transactions.FirstOrDefault(t => t.Id == transactionId);
         if (transaction != null)
         {
+            // Remove the transaction from the list
             _transactions.Remove(transaction);
-            await SaveTransactionsToFile(AppTransactionFilePath);
+
+            // Ensure the file is saved with the updated list of transactions
+            var filePath = Const.Const.TransactionsFilePath();  // Use the correct file path
+            await SaveTransactionsToFile(filePath);
         }
         else
         {
             throw new KeyNotFoundException("Transaction not found");
         }
     }
+
 
     private List<Transaction> LoadTransactionsFromFile(string filePath)
     {
@@ -86,25 +91,35 @@ public class TransactionService : BaseService<Transaction>, ITransactionService
             var json = File.ReadAllText(filePath);
             var transactions = JsonSerializer.Deserialize<List<Transaction>>(json);
 
-            return transactions ?? new List<Transaction>();
+            return transactions ?? new List<Transaction>();  // Ensure we return an empty list if deserialization fails
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading transactions: {ex.Message}");
-            return new List<Transaction>();
+            return new List<Transaction>();  // Return an empty list on error
         }
     }
+
 
     private async Task SaveTransactionsToFile(string filePath)
     {
         try
         {
+            // Ensure _transactions is not null
+            if (_transactions == null)
+            {
+                Console.WriteLine("Transactions list is null.");
+                return;
+            }
+
             var json = JsonSerializer.Serialize(_transactions);
             await File.WriteAllTextAsync(filePath, json);
+            Console.WriteLine("Transactions saved successfully.");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error saving transactions: {ex.Message}");
         }
     }
+
 }
