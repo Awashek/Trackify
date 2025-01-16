@@ -1,7 +1,7 @@
 @page "/transaction"
 
 <h3>Transaction Table</h3>
-<!-- Search Bar and Date Filter -->
+
 <!-- Search Bar and Date Filter -->
 <div class="d-flex flex-wrap justify-content-between mb-5 p-4 bg-white rounded shadow-lg border border-light">
     <!-- Search Bar -->
@@ -96,6 +96,7 @@
                     <td>@string.Join(", ", transaction.Tags)</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => ShowUpdateTransactionModal(transaction.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteTransaction(transaction.Id)">Delete</button>
 
                     </td>
                 </tr>
@@ -242,16 +243,51 @@
 }
 
 
-<!-- Error/Success Messages -->
+
 @if (!string.IsNullOrEmpty(successMessage))
 {
-<div class="alert alert-success mt-3">@successMessage</div>
+    <div class="modal fade show" tabindex="-1" style="display: block;" aria-labelledby="successModalLabel" aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Transaction Successful</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseSuccessModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@successMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseSuccessModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
+
+<!-- Error Modal -->
 @if (!string.IsNullOrEmpty(errorMessage))
 {
-<div class="alert alert-danger mt-3">@errorMessage</div>
+<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="btn-close" @onclick="CloseErrorModal"></button>
+            </div>
+            <div class="modal-body">
+                <p>@errorMessage</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseErrorModal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
 }
+
+
 
 
 @code {
@@ -301,125 +337,84 @@
             StateHasChanged();
         }
     }
+    
+    private void CloseSuccessModal()
+    {
+        successMessage = null;
+    }
 
-<!--
-    private async Task DeleteTransaction(int transactionId)
+    private void CloseErrorModal()
+    {
+        errorMessage = null;
+    }
+    
+  
+   
+    private async Task AddTransaction()
     {
         try
         {
-            // Call the service to delete the transaction
-            await TransactionService.DeleteTransaction(transactionId);
-
-            // Remove the transaction from the local list
-            var transaction = transactions.FirstOrDefault(t => t.Id == transactionId);
-            if (transaction != null)
+// Validate the transaction fields
+            if (string.IsNullOrWhiteSpace(newTransaction.Description) || newTransaction.Description.Any(char.IsDigit))
             {
-                transactions.Remove(transaction);
-
-                // Reapply filters to refresh the table
-                ApplyFilters();
-
-                successMessage = "Transaction deleted successfully.";
+                throw new Exception("Description cannot be empty or contain numbers.");
             }
-            else
+
+            if (newTransaction.Amount <= 0)
             {
-                errorMessage = "Transaction not found in local list.";
+                throw new Exception("Amount must be greater than zero.");
             }
-        }
-        catch (KeyNotFoundException)
-        {
-            errorMessage = "Transaction not found.";
+
+            if (string.IsNullOrWhiteSpace(newTransaction.Type))
+            {
+                throw new Exception("Transaction type is required.");
+            }
+
+// Call the service to add the transaction
+            await TransactionService.AddTransaction(new Models.Transaction
+            {
+                Description = newTransaction.Description,
+                Date = newTransaction.Date == default ? DateTime.Now : newTransaction.Date,
+                Amount = newTransaction.Amount,
+                Type = newTransaction.Type,
+                Tags = newTransaction.Tags,
+                Title = newTransaction.Title
+            });
+
+// If the transaction type is "Debt", add it to the debts as well
+            if (newTransaction.Type == "Debt")
+            {
+                await DebtService.AddDebt(new Models.Debt
+                {
+                    Title = newTransaction.Title,
+                    Status = "Pending",
+                    //made changes here
+                    Amount = newTransaction.Amount,
+                    DueDate = newDebt.DueDate,
+                    ClearedDate = null,
+                    Source = newDebt.Source
+                });
+            }
+            
+// Show success message and reset form
+            successMessage = "Your transaction has been successfully added.";
+            showSuccessDialog = true;
+            errorMessage = null;
+            newTransaction = new Models.Transaction(); // Reset the form data
+            CloseModal(); // Close the modal
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred: {ex.Message}";
+// Log the error and display the error message
+            Console.WriteLine($"Error adding transaction: {ex.Message}");
+            errorMessage = ex.Message;
+            successMessage = null;
         }
     }
 
--->
 
 
-    private Task<bool> ShowConfirmationDialog(string message)
-    {
-        // You can implement a modal or custom confirmation dialog here.
-        // For now, this is a placeholder that always returns true.
-        return Task.FromResult(true);
-    }
-   
-   private async Task AddTransaction()
-{
-    try
-    {
-        // Validate the transaction fields
-        if (string.IsNullOrWhiteSpace(newTransaction.Description) || newTransaction.Description.Any(char.IsDigit))
-        {
-            throw new Exception("Description cannot be empty or contain numbers.");
-        }
 
-        if (newTransaction.Amount <= 0)
-        {
-            throw new Exception("Amount must be greater than zero.");
-        }
-
-        if (string.IsNullOrWhiteSpace(newTransaction.Type))
-        {
-            throw new Exception("Transaction type is required.");
-        }
-
-        // Prepare the new transaction object
-        var transactionToAdd = new Models.Transaction
-        {
-            Description = newTransaction.Description,
-            Date = newTransaction.Date == default ? DateTime.Now : newTransaction.Date,
-            Amount = newTransaction.Amount,
-            Type = newTransaction.Type,
-            Tags = newTransaction.Tags,
-            Title = newTransaction.Title,
-            
-        };
-
-        // Call the service to add the transaction
-        await TransactionService.AddTransaction(transactionToAdd);
-
-        // If the transaction type is "Debt", also add it to the debts
-        if (newTransaction.Type.Equals("Debt", StringComparison.OrdinalIgnoreCase))
-        {
-            if (newDebt.DueDate == default)
-            {
-                throw new Exception("Due date is required for debts.");
-            }
-
-            var debtToAdd = new Models.Debt
-            {
-                Title = newTransaction.Title,
-                Status = "Pending",
-                Amount = newTransaction.Amount,
-                DueDate = newDebt.DueDate,
-                ClearedDate = null,
-                Source = newDebt.Source
-            };
-
-            await DebtService.AddDebt(debtToAdd);
-        }
-
-        // Update UI or recalculate totals if needed
-        //CalculateTotals();
-
-        // Reset form and show success message
-        successMessage = "Your transaction has been successfully added.";
-        errorMessage = null;
-        newTransaction = new Models.Transaction(); // Reset the transaction form
-        newDebt = new Models.Debt(); // Reset the debt form
-        CloseModal(); // Close the modal
-    }
-    catch (Exception ex)
-    {
-        // Handle errors and show an appropriate message
-        Console.WriteLine($"Error adding transaction: {ex.Message}");
-        errorMessage = ex.Message;
-        successMessage = null;
-    }
-}
 
 
     
@@ -496,16 +491,47 @@
         errorMessage = null;
         successMessage = null;
     }
-    
 
-    private void DeleteTransaction(Models.Transaction transaction)
+    private bool showSuccessDialog = false;
+    
+    private async Task DeleteTransaction(int transactionId)
     {
-        transactions.Remove(transaction);
-        successMessage = "Transaction deleted successfully.";
+        try
+        {
+            // Call the service to delete the transaction from the file
+            await TransactionService.DeleteTransaction(transactionId);
+
+            // Find the transaction in the local list to remove it
+            var transaction = transactions.FirstOrDefault(t => t.Id == transactionId);
+        
+            // If found, remove from the local list and show success message
+            if (transaction != null)
+            {
+                transactions.Remove(transaction);
+
+                // Reapply filters to refresh the table if needed
+                ApplyFilters();
+
+                // Set success message and show the dialog
+                successMessage = "Transaction deleted successfully.";
+                showSuccessDialog = true; // Show the dialog
+            }
+            else
+            {
+                // If the transaction wasn't found in the local list, show an error message
+                successMessage = "Transaction deleted successfully.";
+            }
+        }
+        catch (KeyNotFoundException)
+        {
+            // Handle service-specific error if transaction not found
+            errorMessage = "Transaction not found in the database.";
+        }
+        catch (Exception ex)
+        {
+            // Handle general errors
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
     }
-    
-    //New
-    
-    
     
 }

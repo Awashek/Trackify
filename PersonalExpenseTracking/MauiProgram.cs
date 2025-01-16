@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PersonalExpenseTracking.Models;
 using PersonalExpenseTracking.Services;
 using PersonalExpenseTracking.Services.Interface;
 
@@ -25,6 +26,7 @@ public static class MauiProgram
         builder.Services.AddScoped<ITransactionService, TransactionService>();
         builder.Services.AddScoped<IDebtService, DebtService>();
         builder.Services.AddScoped<ITagService, TagService>();
+        builder.Services.AddScoped<GlobalState>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

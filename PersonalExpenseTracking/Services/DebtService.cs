@@ -75,17 +75,24 @@ public class DebtService : BaseService<Debt>, IDebtService
             debt.Status = "Cleared";
             debt.ClearedDate = DateOnly.FromDateTime(DateTime.Now);
 
-            // Remove the cleared debt from the list (this is crucial for permanent deletion)
-            _debts.Remove(debt);
-
-            // Save the updated list back to the file
+            // Save the updated debts list to the file
             await SaveDebtsToFile();
+        }
+        else
+        {
+            Console.WriteLine($"Debt with ID {debtId} not found.");
         }
     }
 
+    // Fetches all cleared debts
+    public async Task<List<Debt>> GetClearedDebts()
+    {
+        var clearedDebts = _debts.Where(d => d.Status == "Cleared").ToList();
+        return await Task.FromResult(clearedDebts);
+    }
 
     // Private method to load debts from the file
-    private List<Debt> LoadDebtsFromFile(string filePath)
+    public List<Debt> LoadDebtsFromFile(string filePath)
     {
         try
         {
@@ -113,7 +120,7 @@ public class DebtService : BaseService<Debt>, IDebtService
     }
 
     // Private method to save debts to the file
-    private async Task SaveDebtsToFile()
+    public async Task SaveDebtsToFile()
     {
         try
         {
@@ -124,5 +131,9 @@ public class DebtService : BaseService<Debt>, IDebtService
         {
             Console.WriteLine($"Error saving debts: {ex.Message}");
         }
+    }
+    public async Task SaveChanges()
+    {
+        await SaveDebtsToFile(); // Call the private method
     }
 }

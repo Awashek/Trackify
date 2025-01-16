@@ -17,7 +17,5 @@ namespace PersonalExpenseTracking.Models
 
         public string Title { get; set; }
 
-        
-
     }
 }

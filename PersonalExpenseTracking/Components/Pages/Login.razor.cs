@@ -25,8 +25,11 @@ namespace PersonalExpenseTracking.Components.Pages
 
             if (CurrentUser != null)
             {
+                globalstate.CurrentUser = CurrentUser;
+                globalstate.CurrentUser.Preferred_Currency = SelectedCurrency;
                 // Navigate to home on successful login
                 Nav.NavigateTo("/home");
+                
             }
             else
             {

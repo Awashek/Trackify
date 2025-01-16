@@ -1,3 +1,15 @@
+/* Navbar Top Row */
+.top-row {
+    height: 3.5rem;
+    background-color: #52A7E0; /* Updated navbar color */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
+}
+
+/* Navbar Toggle Button */
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
@@ -8,22 +20,25 @@
     top: 0.5rem;
     right: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease;
 }
 
-    .navbar-toggler:checked {
-        background-color: rgba(255, 255, 255, 0.5);
-    }
-
-.top-row {
-    height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+/* When Navbar Toggler is checked */
+.navbar-toggler:checked {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Navbar Brand Styling */
 .navbar-brand {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white; /* White for good contrast */
+    letter-spacing: 1px;
+    padding-left: 50px;
 }
 
+/* Navbar Icons (SVGs) */
 .bi {
     display: inline-block;
     position: relative;
@@ -34,6 +49,7 @@
     background-size: cover;
 }
 
+/* Specific Icon Backgrounds */
 .bi-house-door-fill-nav-menu {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-house-door-fill' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z'/%3E%3C/svg%3E");
 }
@@ -46,40 +62,53 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
 }
 
+/* Navbar Items */
 .nav-item {
-    font-size: 0.9rem;
+    font-size: 1rem; /* Slightly larger text */
     padding-bottom: 0.5rem;
+    transition: padding 0.3s ease;
 }
 
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
+/* First and Last Items in Navbar */
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
 
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
 
-    .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
+/* Anchor Links */
+.nav-item ::deep a {
+    color: #d7d7d7;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    padding-left: 1.5rem; /* Added left padding */
+    padding-right: 1.5rem; /* Added right padding */
+    transition: background-color 0.3s, color 0.3s;
+}
 
-        .nav-item ::deep a.active {
-            background-color: rgba(255,255,255,0.37);
-            color: white;
-        }
+/* Active State of Links */
+.nav-item ::deep a.active {
+    background-color: rgba(255,255,255,0.37);
+    color: white;
+    transform: scale(1.05); /* Slight scaling for active state */
+}
 
-        .nav-item ::deep a:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
+/* Hover State of Links */
+.nav-item ::deep a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    transform: scale(1.02); /* Slight scaling for hover state */
+}
 
+/* Scrollable Navbar */
 .nav-scrollable {
     display: none;
+    background-color: #52A7E0;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
@@ -92,10 +121,19 @@
     }
 
     .nav-scrollable {
-        /* Never collapse the sidebar for wide screens */
         display: block;
-        /* Allow sidebar to scroll for tall menus */
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
+    }
+}
+
+/* Additional Styling for Larger Devices */
+@media (min-width: 1024px) {
+    .top-row {
+        padding: 0 3rem; /* Wider padding on larger screens */
+    }
+
+    .nav-item ::deep a {
+        font-size: 1.1rem; /* Slightly larger text for better readability */
     }
 }

@@ -32,4 +32,5 @@ public class BaseService<T> where T : class
         var json = JsonSerializer.Serialize(entity);
         File.WriteAllText(filePath, json);
     }
+    
 }

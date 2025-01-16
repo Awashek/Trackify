@@ -9,6 +9,7 @@
 @using PersonalExpenseTracking.Components
 @using PersonalExpenseTracking.Services
 @using MudBlazor;
+@using PersonalExpenseTracking.Models
 @using PersonalExpenseTracking.Services.Interface
 
 
@@ -17,5 +18,5 @@
 @inject ITransactionService TransactionService
 @inject IDebtService DebtService
 @inject ITagService TagService
-
+@inject GlobalState globalstate
 

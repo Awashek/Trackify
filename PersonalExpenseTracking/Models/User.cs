@@ -6,6 +6,8 @@ public class User
 
     public string Password { get; set; }
     
-    public string Preffered_Currency { get; set; }
+    public string Preferred_Currency { get; set; }
+    
+    
     
 }
