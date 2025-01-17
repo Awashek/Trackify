@@ -17,8 +17,11 @@
         <select class="form-select rounded-pill border-0 shadow-sm p-3" @bind="selectedTag">
             <option value="">Select Tags</option>
             <option value="Fuel">Fuel</option>
-            <option value="Bike">Bike</option>
-            <option value="Car">Car</option>
+            <option value="Salary">Salary</option>
+            <option value="Rent">Rent</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Entertainment">Entertainment</option>
         </select>
     </div>
 
@@ -111,20 +114,6 @@
     <button class="btn btn-success" @onclick="OpenModal">Add Transaction</button>
 </div>
 
-<style>
-    /* Custom green button */
-    .btn-custom-green {
-        background-color: #28a745; /* Green color */
-        border-color: #28a745;
-    }
-
-    .btn-custom-green:hover {
-        background-color: #218838; /* Darker green on hover */
-        border-color: #1e7e34;
-    }
-
-</style>
-
 
 <!-- Add/Edit Modal -->
 @if (showModal)
@@ -171,8 +160,11 @@
                         <select id="tags" class="form-select" @bind="newTransaction.Tags">
                             <option value="">Select Tags</option>
                             <option value="Fuel">Fuel</option>
-                            <option value="Bike">Bike</option>
-                            <option value="Car">Car</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
                         </select>
                     </div>
                 </div>
@@ -354,7 +346,7 @@
     {
         try
         {
-// Validate the transaction fields
+            // Validate the transaction fields
             if (string.IsNullOrWhiteSpace(newTransaction.Description) || newTransaction.Description.Any(char.IsDigit))
             {
                 throw new Exception("Description cannot be empty or contain numbers.");
@@ -370,7 +362,7 @@
                 throw new Exception("Transaction type is required.");
             }
 
-// Call the service to add the transaction
+            // Call the service to add the transaction
             await TransactionService.AddTransaction(new Models.Transaction
             {
                 Description = newTransaction.Description,
@@ -381,7 +373,7 @@
                 Title = newTransaction.Title
             });
 
-// If the transaction type is "Debt", add it to the debts as well
+            // If the transaction type is "Debt", add it to the debts as well
             if (newTransaction.Type == "Debt")
             {
                 await DebtService.AddDebt(new Models.Debt
@@ -396,7 +388,7 @@
                 });
             }
             
-// Show success message and reset form
+            // Show success message and reset form
             successMessage = "Your transaction has been successfully added.";
             showSuccessDialog = true;
             errorMessage = null;
@@ -405,7 +397,7 @@
         }
         catch (Exception ex)
         {
-// Log the error and display the error message
+            // Log the error and display the error message
             Console.WriteLine($"Error adding transaction: {ex.Message}");
             errorMessage = ex.Message;
             successMessage = null;

@@ -4,7 +4,7 @@ namespace PersonalExpenseTracking.Models
 {
     public class Debt
     {
-        public int Id { get; set; } // Unique identifier for the debt
+        public int Id { get; set; } 
 
         public string Source { get; set; } // The source of the debt (e.g., loan, credit card, etc.)
 

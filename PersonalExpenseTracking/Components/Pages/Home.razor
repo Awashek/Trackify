@@ -29,12 +29,6 @@
         margin-top: 20px;
     }
 
-    .transaction-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px 0;
-        border-bottom: 1px solid #eee;
-    }
    
 
     .transaction-item span {
@@ -45,18 +39,7 @@
     .transaction-list {
         width: 100%;
     }
-
-    .transaction-header,
-    .transaction-item {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-        padding: 8px 0;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .transaction-header {
-        font-weight: bold;
-    }
+    
 
     .custom-blue {
         background-color: #18c9cc; /* Your specific blue color */
@@ -200,7 +183,6 @@
 </div>
 
 <!-- Debt List -->
-
     <div class="dashboard-card">
         <h5>Debt List</h5>
 
@@ -240,8 +222,6 @@
             }
         </div>
     </div>
-
-
 
 @*Modal for adding Debts *@
 
@@ -350,7 +330,6 @@
 }
 
 
-
 @if (IslogOut)
 {
 <div class="modal" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: auto;">
@@ -396,188 +375,175 @@
 }
 
 @code {
-
+    //Chart
     private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
     int dataSize = 4;
     private double[] data = new double[] {};
     string[] labels = { "Total Inflow", "Total Outflow","Total Debt" };
-
-   
-
-  
     
-    
-private decimal totalIncome;
-private decimal totalExpense;
-private decimal totalDebt;
-private decimal clearedDebt;
-private decimal remainingDebt;
-private decimal totalBalance;
-private string errorMessage;
-private string successMessage;
-private bool showAddDebtModal = false;
-private bool showSuccessDialog = false;
-private bool showErrorDialog = false;
+    private decimal totalIncome;
+    private decimal totalExpense;
+    private decimal totalDebt;
+    private decimal clearedDebt;
+    private decimal remainingDebt;
+    private decimal totalBalance;
+    private string errorMessage;
+    private string successMessage;
+    private bool showAddDebtModal = false;
+    private bool showSuccessDialog = false;
+    private bool showErrorDialog = false;
 
-//Transaction
-private List<Models.Transaction> transactions = new List<Models.Transaction>();
-private Models.Transaction newTransaction = new Models.Transaction();
+    //Transaction
+    private List<Models.Transaction> transactions = new List<Models.Transaction>();
+    private Models.Transaction newTransaction = new Models.Transaction();
 
-private bool showModal = false;
-//Debt
-private Models.Debt newDebt = new Models.Debt();
-private List<Models.Debt> debts = new List<Models.Debt>();
-private bool showUpdateDebtModal = false;
-private Models.Debt selectedDebt = new Models.Debt();
-
-
-
-private List<Models.Debt> clearedDebts = new List<Models.Debt>();
+    private bool showModal = false;
+    //Debt
+    private Models.Debt newDebt = new Models.Debt();
+    private List<Models.Debt> debts = new List<Models.Debt>();
+    private bool showUpdateDebtModal = false;
+    private Models.Debt selectedDebt = new Models.Debt();
 
 
 
-protected override void OnInitialized()
-{
-CalculateTotals();
-filteredTransactions = transactions;
-}
+    private List<Models.Debt> clearedDebts = new List<Models.Debt>();
 
 
 
-private void OpenModal()
-{
-newTransaction = new Models.Transaction();
-newTransaction.Date = DateTime.Now;
-showModal = true;
-}
-
-
-private async Task LoadDebts()
-{
-try
-{
-// Fetch all debts from the service
-debts = await DebtService.GetAllDebts(); // Assuming you have a method to fetch all debts
-}
-catch (Exception ex)
-{
-Console.WriteLine($"Error loading debts: {ex.Message}");
-// Handle the error as needed, e.g., by showing an error message to the user
-errorMessage = "There was an error loading the debts. Please try again later.";
-}
-}
-
-
-private async Task LoadTransactions()
-{
-try
-{
-// Assuming TransactionService.GetAllTransactions() fetches the data
-transactions = await TransactionService.GetAllTransactions();
-Console.WriteLine($"Loaded {transactions.Count} transactions.");
-}
-catch (Exception ex)
-{
-Console.WriteLine($"Error loading transactions: {ex.Message}");
-errorMessage = "There was an error loading the transactions. Please try again later.";
-}
-}
-
-
-
-
-//Debt
-// Show the Add Debt modal
-private void ShowAddDebtModal()
+    protected override void OnInitialized()
     {
-        showAddDebtModal = true;
-    }
-
-        // Close the Add Debt modal
-private void CloseAddDebtModal()
-    {
-        showAddDebtModal = false;
+    CalculateTotals();
+    filteredTransactions = transactions;
     }
 
 
 
-private void CloseModal()
-{
-    showModal = false;
-}
-
-private void CloseSuccessModal()
-{
-    successMessage = null;
-}
-
-private void CloseErrorModal()
-{
-    errorMessage = null;
-}
-
-private void ShowUpdateDebtModal(int debtId)
-{
-// Find the debt by ID and set it as the selected debt
-    selectedDebt = debts.FirstOrDefault(d => d.Id == debtId);
-    if (selectedDebt != null)
+    private void OpenModal()
     {
-        showUpdateDebtModal = true;
+    newTransaction = new Models.Transaction();
+    newTransaction.Date = DateTime.Now;
+    showModal = true;
     }
-}
 
 
-private async Task AddDebt()
-{
-    try
-    {
-        // Validate the input fields
-        if (string.IsNullOrEmpty(newDebt.Title) || newDebt.Amount <= 0)
+    private async Task LoadDebts()
         {
-            errorMessage = "Please fill in all the fields correctly.";
-        }
-        else
+        try
         {
-            // Process the debt transaction (e.g., create a new debt object)
-            var debt = new Models.Debt()
-            {
-                Title = newDebt.Title,
-                Status = "Pending",
-                Amount = newDebt.Amount,
-                DueDate = newDebt.DueDate,
-                ClearedDate = null, // Not cleared initially
-                Source = newDebt.Source
-            };
-
-            // Call the DebtService to add the debt and persist it to the file
-            DebtService.AddDebt(debt);
-
-            // Recalculate the totals
-            CalculateTotals();
-
-            // Show success message
-            successMessage = "Debt added successfully!";
-            showSuccessDialog = true; // Show success dialog
-
-            // Close the modal after debt is added
-            showModal = false; // Hide the Add Debt modal
-
-            // Reset the debt form
-            newDebt = new Models.Debt(); // Reset the debt form
-
-            // Ensure the UI updates
-            StateHasChanged();
+            // Fetch all debts from the service
+            debts = await DebtService.GetAllDebts(); 
         }
-    }
     catch (Exception ex)
-    {
-        errorMessage = ex.Message;
+        {
+            Console.WriteLine($"Error loading debts: {ex.Message}");
+            
+            errorMessage = "There was an error loading the debts. Please try again later.";
+        }
     }
-}
+
+
+    private async Task LoadTransactions()
+        {
+        try
+            {
+            // Assuming TransactionService.GetAllTransactions() fetches the data
+            transactions = await TransactionService.GetAllTransactions();
+            Console.WriteLine($"Loaded {transactions.Count} transactions.");
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"Error loading transactions: {ex.Message}");
+            errorMessage = "There was an error loading the transactions. Please try again later.";
+            }
+    }
 
 
 
-private async Task ClearDebt(int debtId)
+
+    //Debt
+    // Show the Add Debt modal
+    private void ShowAddDebtModal()
+        {
+            showAddDebtModal = true;
+        }
+
+    
+    private void CloseAddDebtModal()
+        {
+            showAddDebtModal = false;
+        }
+
+
+
+
+    private void CloseSuccessModal()
+    {
+        successMessage = null;
+    }
+
+    
+    private void ShowUpdateDebtModal(int debtId)
+    {
+    // Find the debt by ID and set it as the selected debt
+        selectedDebt = debts.FirstOrDefault(d => d.Id == debtId);
+        if (selectedDebt != null)
+        {
+            showUpdateDebtModal = true;
+        }
+    }
+
+
+    private async Task AddDebt()
+    {
+        try
+        {
+            // Validate the input fields
+            if (string.IsNullOrEmpty(newDebt.Title) || newDebt.Amount <= 0)
+            {
+                errorMessage = "Please fill in all the fields correctly.";
+            }
+            else
+            {
+                // Process the debt transaction (e.g., create a new debt object)
+                var debt = new Models.Debt()
+                {
+                    Title = newDebt.Title,
+                    Status = "Pending",
+                    Amount = newDebt.Amount,
+                    DueDate = newDebt.DueDate,
+                    ClearedDate = null, // Not cleared initially
+                    Source = newDebt.Source
+                };
+
+                // Call the DebtService to add the debt and persist it to the file
+                DebtService.AddDebt(debt);
+
+                // Recalculate the totals
+                CalculateTotals();
+
+                // Show success message
+                successMessage = "Debt added successfully!";
+                showSuccessDialog = true; // Show success dialog
+
+                // Close the modal after debt is added
+                showModal = false; // Hide the Add Debt modal
+
+                // Reset the debt form
+                newDebt = new Models.Debt(); // Reset the debt form
+
+                // Ensure the UI updates
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+
+
+    private async Task ClearDebt(int debtId)
     {
         try
         {
@@ -615,20 +581,20 @@ private async Task ClearDebt(int debtId)
                 showSuccessDialog = true;
                 showModal = false; // Optional: close the modal after success
                 StateHasChanged();
-            }
-            else
+                }
+                else
+                {
+                    errorMessage = "Debt not found.";
+                    showErrorDialog = true; // Optionally, show error dialog
+                    StateHasChanged();
+                }
+        }
+        catch (Exception ex)
             {
-                errorMessage = "Debt not found.";
+                errorMessage = $"An error occurred while clearing the debt: {ex.Message}";
                 showErrorDialog = true; // Optionally, show error dialog
                 StateHasChanged();
             }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"An error occurred while clearing the debt: {ex.Message}";
-            showErrorDialog = true; // Optionally, show error dialog
-            StateHasChanged();
-        }
     }
 
     private void CalculateTotals()
@@ -653,58 +619,47 @@ private async Task ClearDebt(int debtId)
         StateHasChanged();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-private async Task UpdateDebt()
-{
-    if (selectedDebt != null)
+    
+    private async Task UpdateDebt()
     {
-// Call the service method to update the debt
-        await DebtService.UpdateDebt(selectedDebt);
-
-// Update the local debts list to reflect changes
-        var debt = debts.FirstOrDefault(d => d.Id == selectedDebt.Id);
-        if (debt != null)
+            if (selectedDebt != null)
         {
-            debt.Source = selectedDebt.Source;
-            debt.Title = selectedDebt.Title;
-            debt.Amount = selectedDebt.Amount;
-            debt.DueDate = selectedDebt.DueDate;
-            debt.Status = selectedDebt.Status;
-            debt.ClearedDate = selectedDebt.ClearedDate;
+            // Call the service method to update the debt
+            await DebtService.UpdateDebt(selectedDebt);
+
+            // Update the local debts list to reflect changes
+            var debt = debts.FirstOrDefault(d => d.Id == selectedDebt.Id);
+            if (debt != null)
+            {
+                debt.Source = selectedDebt.Source;
+                debt.Title = selectedDebt.Title;
+                debt.Amount = selectedDebt.Amount;
+                debt.DueDate = selectedDebt.DueDate;
+                debt.Status = selectedDebt.Status;
+                debt.ClearedDate = selectedDebt.ClearedDate;
+            }
+
+            // Close the modal after updating
+            showUpdateDebtModal = false;
+            StateHasChanged();
         }
-
-// Close the modal after updating
-        showUpdateDebtModal = false;
-        StateHasChanged();
     }
-}
 
 
-protected override async Task OnInitializedAsync()
-{
-    try
+    protected override async Task OnInitializedAsync()
     {
-        await LoadTransactions();
-        await LoadDebts();
-        CalculateTotals(); // Calculate totals after loading data
+        try
+        {
+            await LoadTransactions();
+            await LoadDebts();
+            CalculateTotals(); // Calculate totals after loading data
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during initialization: {ex.Message}");
+            errorMessage = "There was an issue loading the data. Please try again later.";
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error during initialization: {ex.Message}");
-        errorMessage = "There was an issue loading the data. Please try again later.";
-    }
-}
 
 
     private List<Models.Transaction> filteredTransactions = new List<Models.Transaction>();
@@ -731,10 +686,9 @@ protected override async Task OnInitializedAsync()
 
     private void FilterTransactions()
     {
-// Start by using all transactions
-        var filtered = transactions.AsEnumerable();
 
-// Apply date range filter if both from and to dates are selected
+        var filtered = transactions.AsEnumerable();
+        
         if (fromDate.HasValue)
         {
             filtered = filtered.Where(t => t.Date >= fromDate.Value);
@@ -743,8 +697,6 @@ protected override async Task OnInitializedAsync()
         {
             filtered = filtered.Where(t => t.Date <= toDate.Value);
         }
-
-// Apply the selected filter type (Top 5, Last 5, All)
         switch (selectedFilter)
         {
             case "Top5":
@@ -755,19 +707,14 @@ protected override async Task OnInitializedAsync()
                 break;
             case "All":
             default:
-// No additional filtering for "All"
                 break;
         }
-
-// Update the filtered transactions list
+        
         filteredTransactions = filtered.ToList();
-
-// Re-render the component after the filtering is done
+        
         StateHasChanged();
     }
     
-    
-
 }
 
 
